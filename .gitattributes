@@ -1,0 +1,6 @@
+# 统一用 LF 存仓库:避免 Windows 上 checkout 后被转成 CRLF,
+# 导致「重新构建 client.js」出现无意义的整文件差异。
+* text=auto eol=lf
+
+# 构建产物:GitHub 语言统计里不把 client.js 当源码看
+client.js linguist-generated=true

@@ -1,0 +1,14 @@
+# dsh-ad-popups —— bundle patch
+#
+# 这是插件的「挂载声明」:DSH 启动时把插件行插进 Web profile 的配置树。
+# id 是插件在配置树里的行名,name 必须是真实包名 / 可被 import 的 specifier。
+#
+# 本地开发安装(推荐,改完代码重新加载 profile 即可生效):
+#   dsh plugin --profile <你的 profile> add link:D:\DSH\Ccc\mod2\ad-flyer
+# 或者从设置页「插件市场 / 插件管理」里以本地目录安装本目录。
+#
+# 注意:desktop profile 由 Electron 应用独占管理,命令行 add 会被拒绝 ——
+# 请在应用内用插件管理器安装,或把它加进 profile 的 package.json / 补丁层。
+- insert:
+    - id: dsh-ad-popups
+      name: dsh-ad-popups

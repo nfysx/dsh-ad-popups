@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>广告弹窗 · 设置</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1b1b1b; --muted: #6b6b6b; --line: #e4e4e7;
+    --card: #fafafa; --brand: #4f46e5; --brand-fg: #ffffff; --danger: #dc2626;
+    --ok: #059669; --input: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17171a; --fg: #ececf1; --muted: #a1a1aa; --line: #2e2e33;
+      --card: #1f1f23; --brand: #6366f1; --brand-fg: #ffffff; --danger: #f87171;
+      --ok: #34d399; --input: #131316;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 28px 20px 60px; background: var(--bg); color: var(--fg);
+    font: 14px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1 { margin: 0 0 4px; font-size: 21px; }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 22px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 18px; margin-bottom: 16px;
+  }
+  .card h2 { margin: 0 0 12px; font-size: 15px; }
+  .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .row + .row { margin-top: 10px; }
+  label.sw { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+  input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--brand); cursor: pointer; }
+  textarea, input.num {
+    background: var(--input); color: var(--fg); border: 1px solid var(--line);
+    border-radius: 8px; padding: 7px 10px; font: inherit; outline: none;
+  }
+  input:focus, textarea:focus { border-color: var(--brand); }
+  textarea {
+    width: 100%; min-height: 360px; resize: vertical; line-height: 1.65;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
+    font-size: 12.5px; white-space: pre; overflow-wrap: normal; overflow-x: auto;
+  }
+  button {
+    font: inherit; border-radius: 8px; padding: 7px 14px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--input); color: var(--fg);
+  }
+  button:hover { border-color: var(--brand); }
+  button.primary { background: var(--brand); border-color: var(--brand); color: var(--brand-fg); font-weight: 600; }
+  button.primary:hover { filter: brightness(1.08); }
+  button.danger:hover { border-color: var(--danger); color: var(--danger); }
+  button:disabled { opacity: .5; cursor: default; }
+  .hint { color: var(--muted); font-size: 12.5px; }
+  .hint code { background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; }
+  .status { margin-top: 12px; font-size: 13px; min-height: 20px; }
+  .status.ok { color: var(--ok); }
+  .status.err { color: var(--danger); }
+  .table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .table th, .table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  .table th { color: var(--muted); font-weight: 500; }
+  .tag {
+    display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px;
+    background: color-mix(in srgb, var(--brand) 14%, transparent); color: var(--brand);
+  }
+  .foot { color: var(--muted); font-size: 12px; margin-top: 18px; }
+  .bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+  .grow { flex: 1; }
+  /* 上限步进器:两个明确的按钮,不依赖浏览器对数字输入框的编辑行为 */
+  button.step { width: 30px; height: 30px; padding: 0; font-size: 15px; font-weight: 600; line-height: 1; }
+  input.num { width: 52px; text-align: center; cursor: default; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>广告弹窗</h1>
+  <div class="sub">
+    模型思考期间在主界面飘出的娱乐弹窗。内容全部为虚构恶搞,<strong>不构成任何广告宣传</strong>。
+  </div>
+
+  <div class="card">
+    <h2>总开关</h2>
+    <div class="row">
+      <label class="sw"><input type="checkbox" id="enabled"> 启用广告弹窗</label>
+    </div>
+    <div class="row">
+      <span>同时最多显示</span>
+      <button type="button" id="maxMinus" class="step" title="少一个(最少 1)">−</button>
+      <input type="text" id="maxPopups" readonly class="num" aria-live="polite">
+      <button type="button" id="maxPlus" class="step" title="多一个(最多 8)">＋</button>
+      <span class="hint">个弹窗(1-8)</span>
+    </div>
+    <div class="row hint">
+      关闭总开关后,刷新页面即可。
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>广告文案</h2>
+    <div class="hint" style="margin-bottom:8px">
+      一行一条,字段用 <code>|</code> 分隔:<br>
+      <code>角标 | 标题 | 正文 | 跑马灯 | 按钮文字 | 配色</code><br>
+      只有<strong>标题</strong>是必需的(只写一列也能用)。正文想留空就写 <code>-</code>。
+      配色可选:<span id="themes"></span>。以 <code>#</code> 开头的行是注释,空行忽略。
+    </div>
+    <textarea id="adText" spellcheck="false"></textarea>
+    <div class="bar">
+      <button class="primary" id="save">保存</button>
+      <button id="reload">放弃修改</button>
+      <button class="danger" id="reset">恢复内置文案</button>
+      <span class="grow"></span>
+      <span class="hint" id="count"></span>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <div class="card">
+    <h2>当前生效的素材</h2>
+    <div class="hint" style="margin-bottom:8px">保存后这里会立刻更新;浏览器端下一次轮询更新。</div>
+    <div id="preview"></div>
+  </div>
+
+  <div class="card">
+    <h2>怎么关闭弹窗</h2>
+    <div class="hint">
+      · 点弹窗上的「关闭」:会先挣扎 1-3 次,然后真的关掉<br>
+      · 上面的<strong>总开关</strong>:一劳永逸地彻底退出<br>
+      · 右下角徽标只显示状态,点击进入本页
+    </div>
+  </div>
+
+  <div class="foot" id="foot">设置文件:<span id="filePath">$DSH_HOME/dsh-ad-popups.json</span></div>
+</div>
+
+<script>
+(function () {
+  'use strict'
+  var API = '/api/dsh-ad-popups/settings'
+  var el = function (id) { return document.getElementById(id) }
+  var state = { adText: '', defaultAdText: '', config: { enabled: true, maxPopups: 4 } }
+
+  function setStatus(text, kind) {
+    var node = el('status')
+    node.textContent = text || ''
+    node.className = 'status' + (kind ? ' ' + kind : '')
+  }
+
+  /** 只统计「可能成为一条广告」的行。 */
+  function countLines(text) {
+    var lines = String(text || '').split(/\r?\n/)
+    var n = 0
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].trim()
+      if (line === '' || line.charAt(0) === '#') continue
+      n++
+    }
+    return n
+  }
+
+  function refreshCount() {
+    var n = countLines(el('adText').value)
+    el('count').textContent = '共 ' + n + ' 条'
+  }
+
+  /** 粗略预览:按 | 切列,标出解析出来的字段(真正的解析在宿主侧)。 */
+  function refreshPreview() {
+    var lines = String(el('adText').value || '').split(/\r?\n/)
+    var rows = []
+    for (var i = 0; i < lines.length && rows.length < 60; i++) {
+      var line = lines[i].trim()
+      if (line === '' || line.charAt(0) === '#') continue
+      var parts = line.split(/[|｜]/)
+      for (var j = 0; j < parts.length; j++) parts[j] = parts[j].trim()
+      var title = parts[1] || parts[0] || ''
+      if (title === '') continue
+      rows.push({
+        kicker: parts.length > 1 ? (parts[0] || '') : '免责声明',
+        title: title,
+        theme: (parts[5] || 'hot').toLowerCase(),
+        action: parts[4] || '立即领取',
+      })
+    }
+    if (rows.length === 0) {
+      el('preview').innerHTML = '<div class="hint">当前没有可解析的条目(会回退到内置文案)。</div>'
+      return
+    }
+    var html = '<table class="table"><thead><tr><th>角标</th><th>标题</th><th>按钮</th><th>配色</th></tr></thead><tbody>'
+    for (var k = 0; k < rows.length; k++) {
+      var r = rows[k]
+      html += '<tr><td>' + escapeHtml(r.kicker) + '</td><td>' + escapeHtml(r.title)
+        + '</td><td>' + escapeHtml(r.action) + '</td><td><span class="tag">' + escapeHtml(r.theme) + '</span></td></tr>'
+    }
+    html += '</tbody></table>'
+    el('preview').innerHTML = html
+  }
+
+  function escapeHtml(text) {
+    return String(text).replace(/[&<>"']/g, function (ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
+    })
+  }
+
+  function apply(payload) {
+    state.adText = payload.adText
+    state.defaultAdText = payload.defaultAdText
+    state.config = payload.config
+    el('adText').value = payload.adText
+    el('enabled').checked = payload.config.enabled !== false
+    paintMax()
+    if (payload.adCount !== undefined) {
+      el('count').textContent = '共 ' + payload.adCount + ' 条'
+    } else {
+      refreshCount()
+    }
+    refreshPreview()
+  }
+
+  function load() {
+    setStatus('读取中…')
+    fetch(API, { cache: 'no-store' })
+      .then(function (r) { return r.json() })
+      .then(function (payload) {
+        if (!payload || payload.ok !== true) throw new Error((payload && payload.error) || '读取失败')
+        apply(payload)
+        setStatus('')
+      })
+      .catch(function (error) {
+        setStatus('读取失败:' + (error && error.message ? error.message : error), 'err')
+      })
+  }
+
+  /** 保存当前表单(可选带上恢复默认标记)。 */
+  function save(resetAdText) {
+    var body = {
+      enabled: el('enabled').checked,
+      // 上限以 state 里的草稿值为准(步进器每次点击都会同步过去)
+      maxPopups: Math.min(8, Math.max(1, Math.round(Number(state.config.maxPopups) || 4))),
+      adText: el('adText').value,
+    }
+    if (resetAdText === true) body.resetAdText = true
+    setStatus('保存中…')
+    el('save').disabled = true
+    fetch(API, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+      .then(function (r) { return r.json().then(function (payload) { return { status: r.status, payload: payload } }) })
+      .then(function (result) {
+        var payload = result.payload
+        if (!payload || payload.ok !== true) throw new Error((payload && payload.error) || ('HTTP ' + result.status))
+        if (payload.adText !== undefined) {
+          el('adText').value = payload.adText
+        }
+        el('enabled').checked = payload.config.enabled !== false
+        state.config = payload.config
+        paintMax()
+        refreshCount()
+        refreshPreview()
+        setStatus('已保存:同时最多 ' + String(state.config.maxPopups) + ' 个,下一条弹窗就用新文案。', 'ok')
+      })
+      .catch(function (error) {
+        setStatus('保存失败:' + (error && error.message ? error.message : error), 'err')
+      })
+      .then(function () {
+        el('save').disabled = false
+      })
+  }
+
+  el('save').addEventListener('click', function () { save(false) })
+  el('reload').addEventListener('click', function () {
+    load()
+    setStatus('已放弃未保存的修改。')
+  })
+  el('reset').addEventListener('click', function () {
+    if (!window.confirm('恢复内置文案?当前编辑的内容会被覆盖。')) return
+    el('adText').value = state.defaultAdText
+    save(true)
+  })
+  el('adText').addEventListener('input', function () {
+    refreshCount()
+    refreshPreview()
+  })
+  el('enabled').addEventListener('change', function () { setStatus('总开关改动需点「保存」生效。') })
+
+  /**
+   * 上限值只存在 state 里,显示框只读。
+   *
+   * 之所以不用可编辑的 number 输入框:它在不同宿主里可能被事件/样式干预,
+   * 表现就是「敲了、点了但数字不变」。改成两个明确的步进按钮,每次点击都走这里,
+   * 所见即所得 —— 不依赖浏览器对 <input type=number> 的默认编辑行为。
+   */
+  function paintMax() {
+    var value = Math.min(8, Math.max(1, Math.round(Number(state.config.maxPopups) || 4)))
+    state.config.maxPopups = value
+    el('maxPopups').value = String(value)
+  }
+
+  /** 改一格上限。 */
+  function stepMax(delta) {
+    state.config.maxPopups = Math.min(8, Math.max(1, Math.round(Number(state.config.maxPopups) || 4) + delta))
+    paintMax()
+    setStatus('同时最多显示 ' + String(state.config.maxPopups) + ' 个弹窗(点「保存」生效)')
+  }
+
+  el('maxMinus').addEventListener('click', function () { stepMax(-1) })
+  el('maxPlus').addEventListener('click', function () { stepMax(1) })
+
+  // Ctrl+S 直接保存
+  window.addEventListener('keydown', function (event) {
+    if ((event.ctrlKey || event.metaKey) && (event.key === 's' || event.key === 'S')) {
+      event.preventDefault()
+      save(false)
+    }
+  })
+
+  // 配色清单从宿主侧的常量同步过来(避免两边写死不一致)
+  el('themes').textContent = 'hot / warn / blue / gold / tech / pink / purple / green'
+  load()
+})()
+</script>
+</body>
+</html>

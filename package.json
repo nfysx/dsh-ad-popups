@@ -1,0 +1,57 @@
+{
+  "name": "dsh-ad-popups",
+  "version": "0.2.0",
+  "description": "DSH 娱乐插件:模型思考期间在主界面飘出一堆一眼假的虚拟广告弹窗(内容纯属虚构,不构成任何广告宣传);文案与总开关在插件自带设置里管理",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./ads": "./ads.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "ads.js",
+    "settings.html",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE",
+    "src/",
+    "tools/"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": "^3.18.4"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh": ">=0.1.7-rc.1"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/dsh": {
+      "optional": true
+    }
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "fun",
+    "easter-egg",
+    "popup"
+  ],
+  "scripts": {
+    "build": "node src/client/build.mjs",
+    "check:build": "node src/client/build.mjs --check",
+    "test": "node src/client/build.mjs --check && node --test --test-concurrency=1 \"test/*.test.mjs\""
+  },
+  "license": "MIT"
+}
