@@ -28,7 +28,7 @@
 
 本插件是一个标准的 DSH 插件包(宿主半边 + 注入式浏览器半边)。
 
-### 先装依赖(克隆之后必做)
+### 先装依赖
 
 ```bash
 npm install            # 只有 3 个包,主要是 @deepseek-ai/schemastery(声明 Config 用)
